@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import DashboardLayout from '@/components/layouts/DashboardLayout';
+import DashboardLayout from '../components/layout/DashboardLayout';
 
 interface ProtectedRouteProps {
   allowedRoles: Array<'customer' | 'courier' | 'admin'>;

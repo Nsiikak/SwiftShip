@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Button } from '../components/ui/button';
 import { Package, Truck, User, ChevronRight, ArrowRight } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Card, CardContent } from '../components/ui/card';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const Home: React.FC = () => {
   const isMobile = useIsMobile();

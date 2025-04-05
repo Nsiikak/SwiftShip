@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { trackParcel } from '@/utils/api';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { trackParcel } from '../../utils/api';
+import { useToast } from '../../hooks/use-toast';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Package, CheckCircle, Truck } from 'lucide-react';
-import ParcelStatusBadge from '@/components/shared/ParcelStatusBadge';
+import ParcelStatusBadge from '../../components/shared/ParcelStatusBadge';
 
 interface TrackingEvent {
   id: string;

@@ -62,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
         <div className="hidden md:block">
           <span className="font-medium">{user?.name}</span>
           <div className="text-xs text-gray-500">
-            {user?.role.charAt(0).toUpperCase() + user?.role.slice(1)}
+            {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''}
           </div>
         </div>
       </div>

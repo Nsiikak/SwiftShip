@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAllUsers, getAllParcels } from '@/utils/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { getAllUsers, getAllParcels } from '../../utils/api';
 import { Package, Users, Truck, BarChart4 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '../../components/ui/progress';
 
 // Chart imports
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts';

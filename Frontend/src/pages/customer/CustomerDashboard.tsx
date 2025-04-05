@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getCustomerParcels } from '@/utils/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { getCustomerParcels } from '../../utils/api';
 import { Package, Truck } from 'lucide-react';
-import ParcelStatusBadge from '@/components/shared/ParcelStatusBadge';
-import { Button } from '@/components/ui/button';
+import ParcelStatusBadge from '../../components/shared/ParcelStatusBadge';
+import { Button } from '../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 interface Parcel {

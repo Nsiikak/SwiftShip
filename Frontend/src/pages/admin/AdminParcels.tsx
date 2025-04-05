@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAllParcels } from '@/utils/api';
-import { useToast } from '@/hooks/use-toast';
-import ParcelStatusBadge from '@/components/shared/ParcelStatusBadge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { getAllParcels } from '../../utils/api';
+import { useToast } from '../../hooks/use-toast';
+import ParcelStatusBadge from '../../components/shared/ParcelStatusBadge';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 import { Search } from 'lucide-react';
 
 interface Parcel {

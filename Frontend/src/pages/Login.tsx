@@ -1,73 +1,62 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '@/utils/api';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { login } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../hooks/use-toast';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Package } from 'lucide-react';
-import { handleApiResponse } from '@/utils/api';
+import { handleApiResponse } from '../utils/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{email?: string, password?: string}>({});
+  const [errors, setErrors] = useState<{ email?: string, password?: string }>({});
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
   const { toast } = useToast();
 
   const validate = () => {
-    const newErrors: {email?: string, password?: string} = {};
-    
+    const newErrors: { email?: string, password?: string } = {};
+
     if (!email) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid';
-    
+
     if (!password) newErrors.password = 'Password is required';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
-    
+
     setIsLoading(true);
     try {
+      // Use mock credentials for testing
+      const credentials = {
+        'admin@swiftship.com': { id: '1', name: 'Admin User', role: 'admin' },
+        'courier@swiftship.com': { id: '2', name: 'Courier User', role: 'courier' },
+        'customer@swiftship.com': { id: '3', name: 'Customer User', role: 'customer' },
+      };
+
+      if (password !== 'password' || !credentials[email]) {
+        throw new Error('Invalid email or password');
+      }
+
+      // Simulated login call (optional real API call)
       const response = await login({ email, password });
       const data = await handleApiResponse(response);
-      
-      // For demo purposes, simulate successful login with role-specific data
-      // In production, this would come from the API
-      if (email.includes('admin')) {
-        authLogin(data.token || 'demo-token', { 
-          id: '1', 
-          name: 'Admin User', 
-          email, 
-          role: 'admin' 
-        });
-        navigate('/admin/dashboard');
-      } else if (email.includes('courier')) {
-        authLogin(data.token || 'demo-token', { 
-          id: '2', 
-          name: 'Courier User', 
-          email, 
-          role: 'courier' 
-        });
-        navigate('/courier/dashboard');
-      } else {
-        authLogin(data.token || 'demo-token', { 
-          id: '3', 
-          name: 'Customer User', 
-          email, 
-          role: 'customer' 
-        });
-        navigate('/customer/dashboard');
-      }
-      
+
+      const user = credentials[email];
+      authLogin(data.token || 'demo-token', { email, ...user });
+
+      navigate(`/${user.role}/dashboard`);
+
       toast({
         title: 'Success',
         description: 'You have been logged in',
