@@ -26,24 +26,7 @@ const Register = () => {
   const { login } = useAuth();
   const { toast } = useToast();
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.name) newErrors.name = 'Name is required';
-    
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    
-    if (!formData.password) newErrors.password = 'Password is required';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // ... keep existing code (validate function)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -191,12 +174,16 @@ const Register = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Account Type</label>
-                <RadioGroup value={formData.role} className="flex space-x-4 mt-1">
+                <RadioGroup 
+                  defaultValue={formData.role} 
+                  className="flex space-x-4 mt-1"
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem 
                       id="customer" 
                       value="customer" 
                       name="role"
+                      checked={formData.role === "customer"}
                       onChange={handleChange}
                     />
                     <Label htmlFor="customer">Customer</Label>
@@ -206,6 +193,7 @@ const Register = () => {
                       id="courier" 
                       value="courier"
                       name="role" 
+                      checked={formData.role === "courier"}
                       onChange={handleChange}
                     />
                     <Label htmlFor="courier">Courier</Label>
