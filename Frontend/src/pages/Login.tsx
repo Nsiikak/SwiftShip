@@ -5,7 +5,14 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../hooks/use-toast';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '../components/ui/card';
 import { Package } from 'lucide-react';
 import { handleApiResponse } from '../utils/api';
 
@@ -13,13 +20,20 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string, password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
   const { toast } = useToast();
 
+  // Define valid test credentials
+  const credentials = {
+    'admin@swiftship.com': { id: '1', name: 'Admin User', role: 'admin' },
+    'courier@swiftship.com': { id: '2', name: 'Courier User', role: 'courier' },
+    'customer@swiftship.com': { id: '3', name: 'Customer User', role: 'customer' }
+  } as const;
+
   const validate = () => {
-    const newErrors: { email?: string, password?: string } = {};
+    const newErrors: { email?: string; password?: string } = {};
 
     if (!email) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid';
@@ -37,36 +51,38 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      // Use mock credentials for testing
-      const credentials = {
-        'admin@swiftship.com': { id: '1', name: 'Admin User', role: 'admin' },
-        'courier@swiftship.com': { id: '2', name: 'Courier User', role: 'courier' },
-        'customer@swiftship.com': { id: '3', name: 'Customer User', role: 'customer' },
-      };
-
-      if (password !== 'password' || !credentials[email]) {
+      // Check if email matches one of the mock users
+      if (!(email in credentials) || password !== 'password') {
         throw new Error('Invalid email or password');
       }
 
-      // Simulated login call (optional real API call)
-      const response = await login({ email, password });
-      const data = await handleApiResponse(response);
+      // Optionally simulate real API call
+      // const response = await login({ email, password });
+      // const data = await handleApiResponse(response);
 
-      const user = credentials[email];
-      authLogin(data.token || 'demo-token', { email, ...user });
+      // Skip API for mock login
+      const data = { token: 'demo-token' };
+
+      const user = credentials[email as keyof typeof credentials];
+
+      authLogin(data.token, {
+        email,
+        ...user,
+        role: user.role // explicitly add the role
+      });
 
       navigate(`/${user.role}/dashboard`);
 
       toast({
         title: 'Success',
-        description: 'You have been logged in',
+        description: 'You have been logged in'
       });
     } catch (error) {
       console.error('Login error', error);
       toast({
         title: 'Error',
         description: 'Invalid email or password',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setIsLoading(false);
@@ -127,14 +143,18 @@ const Login = () => {
                   <span className="text-xs text-red-500">{errors.password}</span>
                 )}
               </div>
-              <Button type="submit" className="w-full bg-swiftship-600 hover:bg-swiftship-700" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full bg-swiftship-600 hover:bg-swiftship-700"
+                disabled={isLoading}
+              >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
             <span className="text-sm text-gray-500">
-              Don't have an account?{" "}
+              Don't have an account?{' '}
               <Link to="/register" className="text-swiftship-600 hover:underline">
                 Sign up
               </Link>
