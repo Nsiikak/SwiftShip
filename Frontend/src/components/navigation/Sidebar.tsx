@@ -1,9 +1,9 @@
 import React from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 import { Package, Truck, Home, Users, List, User, LogOut, Package as ParcelIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 interface SidebarProps {
   isOpen: boolean;

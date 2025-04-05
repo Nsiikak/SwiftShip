@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '../../context/AuthContext';
+import { Button } from '../../components/ui/button';
 import { Menu, Bell, User } from 'lucide-react';
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '../../components/ui/dropdown-menu';
 
 interface HeaderProps {
   sidebarOpen: boolean;

@@ -1,8 +1,7 @@
 import React from 'react';
-import Sidebar from '@/components/navigation/Sidebar';
-import Header from '@/components/navigation/Header';
-import { useIsMobile } from '@/hooks/use-mobile';
-
+import Sidebar from '../navigation/Sidebar';
+import Header from '../navigation/Header';
+import { useIsMobile } from '../../hooks/use-mobile';
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
