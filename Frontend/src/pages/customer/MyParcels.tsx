@@ -44,7 +44,7 @@ const MyParcels = () => {
           return;
         }
 
-        const response = await getCustomerParcels(user.id); // Fetch parcels for the logged-in user
+        const response = await getCustomerParcels(Number(user.id)); // Fetch parcels for the logged-in user
         const data = await response.json();
 
         if (response.ok) {
@@ -83,7 +83,8 @@ const MyParcels = () => {
 
   const deliveredParcels = filteredParcels.filter(p => p.status === 'delivered');
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return "N/A"; // Handle undefined or null dates
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

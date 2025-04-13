@@ -8,8 +8,11 @@ interface ParcelStatusBadgeProps {
 }
 
 const ParcelStatusBadge: React.FC<ParcelStatusBadgeProps> = ({ status, className }) => {
+  if (!status) return null;
+
   const getStatusConfig = () => {
-    switch (status) {
+    const safeStatus = status?.toLowerCase() || '';
+    switch (safeStatus) {
       case 'pending':
         return { label: 'Pending', className: 'bg-gray-100 text-gray-800 hover:bg-gray-200' };
       case 'picked_up':
@@ -23,7 +26,7 @@ const ParcelStatusBadge: React.FC<ParcelStatusBadgeProps> = ({ status, className
       case 'failed':
         return { label: 'Failed Delivery', className: 'bg-red-100 text-red-800 hover:bg-red-200' };
       default:
-        return { label: status.replace('_', ' '), className: 'bg-gray-100 text-gray-800 hover:bg-gray-200' };
+        return { label: safeStatus.replace('_', ' '), className: 'bg-gray-100 text-gray-800 hover:bg-gray-200' };
     }
   };
 
