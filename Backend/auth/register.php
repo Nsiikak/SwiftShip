@@ -16,28 +16,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Establish database connection
         $db = new Database();
         $conn = $db->connect();
+
+        // 🔍 Check if email already exists
+        $checkQuery = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        if (!$checkQuery) {
+            throw new Exception("Failed to prepare email check: " . $conn->error);
+        }
+
+        $checkQuery->bind_param("s", $email);
+        $checkQuery->execute();
+        $checkQuery->store_result();
+
+        if ($checkQuery->num_rows > 0) {
+            echo json_encode(['success' => false, 'message' => 'Email already registered']);
+            $checkQuery->close();
+            $conn->close();
+            exit;
+        }
+        $checkQuery->close();
 
         // Hash the password
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-        // Prepare and execute the query
-        $query = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-        if (!$query) {
-            throw new Exception("Failed to prepare statement: " . $conn->error);
+        // Insert new user
+        $insertQuery = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
+        if (!$insertQuery) {
+            throw new Exception("Failed to prepare insert: " . $conn->error);
         }
 
-        $query->bind_param("ssss", $name, $email, $hashedPassword, $role);
+        $insertQuery->bind_param("ssss", $name, $email, $hashedPassword, $role);
 
-        if ($query->execute()) {
+        if ($insertQuery->execute()) {
             echo json_encode(['success' => true, 'message' => 'User registered successfully']);
         } else {
-            throw new Exception("Failed to execute query: " . $query->error);
+            throw new Exception("Failed to execute insert: " . $insertQuery->error);
         }
 
-        $query->close();
+        $insertQuery->close();
         $conn->close();
     } catch (Exception $e) {
         error_log("Error in register.php: " . $e->getMessage());
