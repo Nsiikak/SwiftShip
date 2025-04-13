@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getCustomerParcels } from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../hooks/use-toast';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Package, Truck } from 'lucide-react';
 import ParcelStatusBadge from '../../components/shared/ParcelStatusBadge';
-import { Button } from '../../components/ui/button';
-import { useNavigate } from 'react-router-dom';
 
 interface Parcel {
   id: string;
@@ -19,52 +21,50 @@ interface Parcel {
 const CustomerDashboard: React.FC = () => {
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchParcels = async () => {
+      setLoading(true);
       try {
-        const response = await getCustomerParcels();
-        // For demo purposes, we'll create mock data
-        const mockParcels = [
-          {
-            id: '1',
-            trackingId: 'SW-123456',
-            status: 'delivered',
-            createdAt: '2023-04-01T10:00:00Z',
-            pickupAddress: '123 Main St, New York, NY',
-            deliveryAddress: '456 Elm St, Boston, MA',
-            description: 'Fragile electronics',
-          },
-          {
-            id: '2',
-            trackingId: 'SW-789012',
-            status: 'in_transit',
-            createdAt: '2023-04-02T11:30:00Z',
-            pickupAddress: '789 Oak St, Chicago, IL',
-            deliveryAddress: '101 Pine St, San Francisco, CA',
-            description: 'Clothing items',
-          },
-          {
-            id: '3',
-            trackingId: 'SW-345678',
-            status: 'pending',
-            createdAt: '2023-04-03T09:15:00Z',
-            pickupAddress: '555 Cedar St, Miami, FL',
-            deliveryAddress: '777 Beach Rd, Los Angeles, CA',
-            description: 'Books and magazines',
-          },
-        ];
-        setParcels(mockParcels);
+        if (!user) {
+          toast({
+            title: 'Error',
+            description: 'User is not authenticated',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+
+        const response = await getCustomerParcels(Number(user.id)); // Fetch parcels for the logged-in user
+        const data = await response.json();
+
+        if (response.ok) {
+          setParcels(data.data); // Update the parcels state with the fetched data
+        } else {
+          toast({
+            title: 'Error',
+            description: data.message || 'Failed to fetch parcels',
+            variant: 'destructive',
+          });
+        }
       } catch (error) {
         console.error('Error fetching parcels:', error);
+        toast({
+          title: 'Error',
+          description: 'An error occurred while fetching parcels',
+          variant: 'destructive',
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchParcels();
-  }, []);
+  }, [user, toast]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -78,8 +78,8 @@ const CustomerDashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Customer Dashboard</h1>
-        <Button 
-          onClick={() => navigate('/customer/create-shipment')} 
+        <Button
+          onClick={() => navigate('/customer/create-shipment')}
           className="bg-swiftship-600 hover:bg-swiftship-700"
         >
           <Package className="mr-2 h-4 w-4" />
@@ -128,9 +128,7 @@ const CustomerDashboard: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle>Recent Shipments</CardTitle>
-          <CardDescription>
-            Your latest parcel shipments and their status
-          </CardDescription>
+          <CardDescription>Your latest parcel shipments and their status</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (

@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../hooks/use-toast';
 import ParcelStatusBadge from '../../components/shared/ParcelStatusBadge';
 import { Package, Search, Calendar, Clock } from 'lucide-react';
+import { getCustomerParcels } from '../../utils/api';
+import { useAuth } from '../../context/AuthContext';
 
 interface Parcel {
   id: string;
@@ -26,74 +28,56 @@ const MyParcels = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth(); // Get the logged-in user's information
 
   useEffect(() => {
-    // In a real app, we would fetch data from an API
-    // For now, let's create mock data
-    const mockParcels: Parcel[] = [
-      {
-        id: '1',
-        trackingId: 'SW-123456',
-        createdAt: '2023-04-01T10:00:00Z',
-        updatedAt: '2023-04-01T14:30:00Z',
-        status: 'delivered',
-        pickupAddress: '123 Main St, New York, NY',
-        deliveryAddress: '456 Elm St, Boston, MA',
-        description: 'Fragile electronics',
-      },
-      {
-        id: '2',
-        trackingId: 'SW-789012',
-        createdAt: '2023-04-02T11:30:00Z',
-        updatedAt: '2023-04-03T09:45:00Z',
-        status: 'in_transit',
-        pickupAddress: '789 Oak St, Chicago, IL',
-        deliveryAddress: '101 Pine St, San Francisco, CA',
-        description: 'Clothing items',
-      },
-      {
-        id: '3',
-        trackingId: 'SW-345678',
-        createdAt: '2023-04-03T09:15:00Z',
-        updatedAt: '2023-04-03T09:15:00Z',
-        status: 'pending',
-        pickupAddress: '555 Cedar St, Miami, FL',
-        deliveryAddress: '777 Beach Rd, Los Angeles, CA',
-        description: 'Books and magazines',
-      },
-      {
-        id: '4',
-        trackingId: 'SW-901234',
-        createdAt: '2023-03-25T08:30:00Z',
-        updatedAt: '2023-03-29T16:20:00Z',
-        status: 'delivered',
-        pickupAddress: '222 Maple Ave, Seattle, WA',
-        deliveryAddress: '333 Birch Blvd, Portland, OR',
-        description: 'Home décor items',
-      },
-      {
-        id: '5',
-        trackingId: 'SW-567890',
-        createdAt: '2023-03-28T13:45:00Z',
-        updatedAt: '2023-03-30T11:10:00Z',
-        status: 'delivered',
-        pickupAddress: '444 Walnut St, Austin, TX',
-        deliveryAddress: '666 Spruce Dr, Dallas, TX',
-        description: 'Kitchen appliances',
-      },
-    ];
+    const fetchParcels = async () => {
+      setLoading(true);
+      try {
+        if (!user) {
+          toast({
+            title: 'Error',
+            description: 'User is not authenticated',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
 
-    setParcels(mockParcels);
-    setLoading(false);
-  }, []);
+        const response = await getCustomerParcels(user.id); // Fetch parcels for the logged-in user
+        const data = await response.json();
 
-  const filteredParcels = parcels.filter(parcel => 
+        if (response.ok) {
+          setParcels(data.data); // Update the parcels state with the fetched data
+        } else {
+          toast({
+            title: 'Error',
+            description: data.message || 'Failed to fetch parcels',
+            variant: 'destructive',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching parcels:', error);
+        toast({
+          title: 'Error',
+          description: 'An error occurred while fetching parcels',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchParcels();
+  }, [user, toast]);
+
+  const filteredParcels = parcels.filter(parcel =>
     parcel.trackingId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     parcel.deliveryAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
     parcel.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const activeParcels = filteredParcels.filter(p => 
+  const activeParcels = filteredParcels.filter(p =>
     p.status === 'pending' || p.status === 'picked_up' || p.status === 'in_transit'
   );
 

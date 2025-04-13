@@ -5,8 +5,8 @@ import { useToast } from '../../hooks/use-toast';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { useAuth } from '../../context/AuthContext';
 
 const CreateParcel: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -18,21 +18,22 @@ const CreateParcel: React.FC = () => {
     dimensions: '',
     description: '',
   });
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth(); // Get the logged-in user's information
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.pickupAddress) newErrors.pickupAddress = 'Pickup address is required';
     if (!formData.deliveryAddress) newErrors.deliveryAddress = 'Delivery address is required';
     if (!formData.recipientName) newErrors.recipientName = 'Recipient name is required';
     if (!formData.recipientPhone) newErrors.recipientPhone = 'Recipient phone is required';
-    if (!formData.weight) newErrors.weight = 'Weight is required';
-    
+    if (!formData.weight || isNaN(parseFloat(formData.weight))) newErrors.weight = 'Weight must be a valid number';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -46,24 +47,27 @@ const CreateParcel: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
-    
+
     setIsLoading(true);
     try {
       await createParcel({
+        sender_id: user?.id ? parseInt(user.id, 10) : 0, // Convert user ID to a number or fallback to 0
         pickupAddress: formData.pickupAddress,
         deliveryAddress: formData.deliveryAddress,
+        recipientName: formData.recipientName,
+        recipientPhone: formData.recipientPhone,
         weight: parseFloat(formData.weight),
         dimensions: formData.dimensions,
         description: formData.description,
       });
-      
+
       toast({
         title: 'Success',
-        description: 'Your shipment has been created',
+        description: 'Your shipment has been created successfully',
       });
-      
+
       navigate('/customer/dashboard');
     } catch (error) {
       console.error('Error creating parcel:', error);
@@ -81,7 +85,6 @@ const CreateParcel: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mr-2">
-          <ArrowLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
         <h1 className="text-2xl font-bold">Create New Shipment</h1>
@@ -90,9 +93,7 @@ const CreateParcel: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle>Shipment Details</CardTitle>
-          <CardDescription>
-            Enter the information for your new shipment
-          </CardDescription>
+          <CardDescription>Enter the information for your new shipment</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -113,7 +114,7 @@ const CreateParcel: React.FC = () => {
                   <span className="text-xs text-red-500">{errors.pickupAddress}</span>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <label htmlFor="deliveryAddress" className="text-sm font-medium">
                   Delivery Address

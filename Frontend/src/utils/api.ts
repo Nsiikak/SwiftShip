@@ -22,7 +22,7 @@ export const register = (data: {
   });
 
 export const getUserProfile = () =>
-  fetch("{{API_GET_USER_PROFILE}}", {
+  fetch(`${API_BASE_URL}/auth/profile.php`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -32,13 +32,16 @@ export const getUserProfile = () =>
 
 // Customer Endpoints
 export const createParcel = (data: {
+  sender_id: number;
   pickupAddress: string;
   deliveryAddress: string;
+  recipientName: string;
+  recipientPhone: string;
   weight: number;
   dimensions: string;
   description: string;
 }) =>
-  fetch("{{API_CREATE_PARCEL}}", {
+  fetch(`${API_BASE_URL}/customer/create_parcel.php`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -47,8 +50,8 @@ export const createParcel = (data: {
     body: JSON.stringify(data),
   });
 
-export const getCustomerParcels = () =>
-  fetch("{{API_GET_CUSTOMER_PARCELS}}", {
+export const getCustomerParcels = (sender_id: number) =>
+  fetch(`${API_BASE_URL}/customer/get_parcels.php?sender_id=${sender_id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -57,7 +60,7 @@ export const getCustomerParcels = () =>
   });
 
 export const trackParcel = (trackingId: string) =>
-  fetch(`{{API_TRACK_PARCEL}}/${trackingId}`, {
+  fetch(`${API_BASE_URL}/customer/track_parcel.php?tracking_id=${trackingId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -67,7 +70,7 @@ export const trackParcel = (trackingId: string) =>
 
 // Courier Endpoints
 export const getAvailableParcels = () =>
-  fetch("{{API_GET_AVAILABLE_PARCELS}}", {
+  fetch(`${API_BASE_URL}/courier/available_parcels.php`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -76,16 +79,17 @@ export const getAvailableParcels = () =>
   });
 
 export const acceptParcel = (parcelId: string) =>
-  fetch(`{{API_ACCEPT_PARCEL}}/${parcelId}`, {
+  fetch(`${API_BASE_URL}/courier/accept_parcel.php`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
+    body: JSON.stringify({ parcel_id: parcelId }),
   });
 
 export const updateParcelStatus = (parcelId: string, status: string) =>
-  fetch(`{{API_UPDATE_PARCEL_STATUS}}/${parcelId}`, {
+  fetch(`${API_BASE_URL}/courier/update_parcel.php`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -96,7 +100,7 @@ export const updateParcelStatus = (parcelId: string, status: string) =>
 
 // Admin Endpoints
 export const getAllUsers = () =>
-  fetch("{{API_GET_ALL_USERS}}", {
+  fetch(`${API_BASE_URL}/admin/get_users.php`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -105,7 +109,7 @@ export const getAllUsers = () =>
   });
 
 export const getAllParcels = () =>
-  fetch("{{API_GET_ALL_PARCELS}}", {
+  fetch(`${API_BASE_URL}/admin/get_parcels.php`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -114,12 +118,13 @@ export const getAllParcels = () =>
   });
 
 export const toggleUserStatus = (userId: string) =>
-  fetch(`{{API_TOGGLE_USER_STATUS}}/${userId}`, {
+  fetch(`${API_BASE_URL}/admin/toggle_user.php`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
+    body: JSON.stringify({ user_id: userId }),
   });
 
 // Helper to handle response
