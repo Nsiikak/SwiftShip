@@ -1,19 +1,46 @@
 <?php
-require_once("../config/db.php");
-header("Content-Type: application/json");
 
-$data = json_decode(file_get_contents("php://input"), true);
+require_once __DIR__ . '/../config/db.php';
 
-$name = $data['name'];
-$email = $data['email'];
-$password = password_hash($data['password'], PASSWORD_DEFAULT);
-$role = $data['role'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
 
-$stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $name, $email, $password, $role);
+    $name = $data['name'] ?? null;
+    $email = $data['email'] ?? null;
+    $password = $data['password'] ?? null;
+    $role = $data['role'] ?? 'customer'; // Default role is 'customer'
 
-if ($stmt->execute()) {
-    echo json_encode(["success" => true, "message" => "User registered"]);
-} else {
-    echo json_encode(["success" => false, "error" => $stmt->error]);
+    if (!$name || !$email || !$password) {
+        echo json_encode(['success' => false, 'message' => 'Name, email, and password are required']);
+        exit;
+    }
+
+    try {
+        // Establish database connection
+        $db = new Database();
+        $conn = $db->connect();
+
+        // Hash the password
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        // Prepare and execute the query
+        $query = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
+        if (!$query) {
+            throw new Exception("Failed to prepare statement: " . $conn->error);
+        }
+
+        $query->bind_param("ssss", $name, $email, $hashedPassword, $role);
+
+        if ($query->execute()) {
+            echo json_encode(['success' => true, 'message' => 'User registered successfully']);
+        } else {
+            throw new Exception("Failed to execute query: " . $query->error);
+        }
+
+        $query->close();
+        $conn->close();
+    } catch (Exception $e) {
+        error_log("Error in register.php: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'An error occurred during registration.']);
+    }
 }
