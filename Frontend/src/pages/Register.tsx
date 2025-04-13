@@ -12,7 +12,13 @@ import { Label } from '../components/ui/label';
 import { handleApiResponse } from '../utils/api';
 
 const Register = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    role: 'customer' | 'courier' | 'admin'; // Explicitly type role
+  }>({
     name: '',
     email: '',
     password: '',
@@ -71,6 +77,7 @@ const Register = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        confirmPassword: formData.confirmPassword,
         role: formData.role, // Send the selected role to the backend
       });
 
@@ -201,7 +208,7 @@ const Register = () => {
                 <label className="text-sm font-medium">Account Type</label>
                 <RadioGroup
                   value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value })}
+                  onValueChange={(value) => setFormData({ ...formData, role: value as 'customer' | 'courier' | 'admin' })}
                   className="flex space-x-4 mt-1"
                 >
                   <div className="flex items-center space-x-2">
