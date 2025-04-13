@@ -1,9 +1,8 @@
-// API service with placeholder endpoints
-// These will be replaced with actual endpoints later
+const API_BASE_URL = "http://localhost/SwiftShip/Backend/auth";
 
 // Authentication Endpoints
 export const login = (data: { email: string; password: string }) =>
-  fetch("{{API_LOGIN}}", {
+  fetch(`${API_BASE_URL}/login.php`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -15,7 +14,7 @@ export const register = (data: {
   password: string;
   role: "customer" | "courier" | "admin";
 }) =>
-  fetch("{{API_REGISTER}}", {
+  fetch(`${API_BASE_URL}/register.php`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

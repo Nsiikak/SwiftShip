@@ -26,11 +26,11 @@ const Login = () => {
   const { toast } = useToast();
 
   // Define valid test credentials
-  const credentials = {
-    'admin@swiftship.com': { id: '1', name: 'Admin User', role: 'admin' },
-    'courier@swiftship.com': { id: '2', name: 'Courier User', role: 'courier' },
-    'customer@swiftship.com': { id: '3', name: 'Customer User', role: 'customer' }
-  } as const;
+  // const credentials = {
+  //   'admin@swiftship.com': { id: '1', name: 'Admin User', role: 'admin' },
+  //   'courier@swiftship.com': { id: '2', name: 'Courier User', role: 'courier' },
+  //   'customer@swiftship.com': { id: '3', name: 'Customer User', role: 'customer' }
+  // } as const;
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -51,38 +51,28 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      // Check if email matches one of the mock users
-      if (!(email in credentials) || password !== 'password') {
-        throw new Error('Invalid email or password');
-      }
-
-      // Optionally simulate real API call
-      // const response = await login({ email, password });
-      // const data = await handleApiResponse(response);
-
-      // Skip API for mock login
-      const data = { token: 'demo-token' };
-
-      const user = credentials[email as keyof typeof credentials];
+      const response = await login({ email, password });
+      const data = await handleApiResponse(response);
 
       authLogin(data.token, {
-        email,
-        ...user,
-        role: user.role // explicitly add the role
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
       });
 
-      navigate(`/${user.role}/dashboard`);
+      navigate(`/${data.user.role}/dashboard`);
 
       toast({
         title: 'Success',
-        description: 'You have been logged in'
+        description: 'You have been logged in',
       });
     } catch (error) {
       console.error('Login error', error);
       toast({
         title: 'Error',
         description: 'Invalid email or password',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
