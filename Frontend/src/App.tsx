@@ -48,18 +48,23 @@ const App = () => (
               <Route path="/customer/dashboard" element={<CustomerDashboard />} />
               <Route path="/customer/create-shipment" element={<CreateParcel />} />
               <Route path="/customer/track" element={<TrackParcel />} />
+              <Route path="/customer/parcels" element={<MyParcels />} />
+              <Route path="/customer/profile" element={<Profile />} />
             </Route>
 
             {/* Courier Routes */}
             <Route element={<ProtectedRoute allowedRoles={['courier']} />}>
               <Route path="/courier/dashboard" element={<CourierDashboard />} />
               <Route path="/courier/available" element={<AvailableParcels />} />
+              <Route path="/courier/deliveries" element={<MyDeliveries />} />
+              <Route path="/courier/profile" element={<Profile />} />
             </Route>
 
             {/* Admin Routes */}
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/parcels" element={<AdminParcels />} />
+              <Route path="/admin/profile" element={<Profile />} />
             </Route>
 
             {/* 404 Route */}
