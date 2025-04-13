@@ -9,45 +9,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once("../config/db.php"); // Ensure the database connection is included
+require_once("../config/db.php");
 header("Content-Type: application/json");
 
-// Validate and retrieve the sender_id from the request
-if (!isset($_GET['sender_id'])) {
-    echo json_encode(["success" => false, "message" => "Sender ID is required"]);
+// Validate and retrieve the sender_id
+$sender_id = $_GET['sender_id'] ?? null;
+
+if (!$sender_id || !is_numeric($sender_id)) {
+    echo json_encode(["success" => false, "message" => "Valid sender ID is required"]);
     exit;
 }
 
-$sender_id = intval($_GET['sender_id']); // Ensure sender_id is an integer
+try {
+    $db = new Database();
+    $conn = $db->connect();
 
-// Log the sender_id for debugging
-error_log("Fetching parcels for sender_id: $sender_id");
+    $query = $conn->prepare("
+        SELECT 
+            p.id AS parcel_id,
+            p.tracking_id,
+            p.created_at,
+            p.pickup_address,
+            p.delivery_address,
+            p.description,
+            COALESCE(pt.status, 'pending') AS status,
+            MAX(pt.timestamp) AS last_updated
+        FROM parcels p
+        LEFT JOIN parcel_tracking pt ON p.id = pt.parcel_id
+        WHERE p.sender_id = ?
+        GROUP BY p.id
+        ORDER BY p.created_at DESC
+    ");
 
-// Prepare and execute the query
-$query = $conn->prepare("SELECT * FROM parcels WHERE sender_id = ?");
-if (!$query) {
-    echo json_encode(["success" => false, "message" => "Failed to prepare query: " . $conn->error]);
-    exit;
+    if (!$query) {
+        throw new Exception("Failed to prepare query: " . $conn->error);
+    }
+
+    $query->bind_param("i", $sender_id);
+    $query->execute();
+
+    $result = $query->get_result();
+    $parcels = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $parcels[] = [
+            "id" => $row["parcel_id"],
+            "trackingId" => $row["tracking_id"],
+            "createdAt" => $row["created_at"],
+            "pickupAddress" => $row["pickup_address"],
+            "deliveryAddress" => $row["delivery_address"],
+            "description" => $row["description"],
+            "status" => $row["status"],
+            "lastUpdated" => $row["last_updated"]
+        ];
+    }
+
+    echo json_encode([
+        "success" => true,
+        "message" => count($parcels) > 0 ? "Parcels retrieved successfully" : "No parcels found",
+        "data" => $parcels
+    ]);
+
+    $query->close();
+    $conn->close();
+} catch (Exception $e) {
+    error_log("Parcel fetch error: " . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "An internal error occurred."]);
 }
-
-$query->bind_param("i", $sender_id);
-$query->execute();
-
-$result = $query->get_result();
-$parcels = [];
-
-while ($row = $result->fetch_assoc()) {
-    $parcels[] = $row;
-}
-
-// Check if parcels were found
-if (empty($parcels)) {
-    echo json_encode(["success" => false, "message" => "No parcels found for the given sender ID"]);
-    exit;
-}
-
-// Return the parcels as JSON
-echo json_encode(["success" => true, "data" => $parcels]);
-
-$query->close();
-$conn->close();

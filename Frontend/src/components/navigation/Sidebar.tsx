@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, Truck, Home, Users, List, User, LogOut, Package as ParcelIcon } from 'lucide-react';
+import { Package, Truck, Home, Users, List, User, LogOut, Package as ParcelIcon, Map, Clock, BarChart2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/button';
 
@@ -38,7 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           { name: 'All Parcels', href: '/admin/parcels', icon: Package },
           { name: 'Customers', href: '/admin/customers', icon: Users },
           { name: 'Couriers', href: '/admin/couriers', icon: Truck },
-          { name: 'System Stats', href: '/admin/stats', icon: List },
+          { name: 'System Stats', href: '/admin/stats', icon: BarChart2 },
+          { name: 'Profile', href: '/admin/profile', icon: User },
         ];
       default:
         return [];

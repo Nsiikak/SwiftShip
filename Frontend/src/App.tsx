@@ -27,6 +27,9 @@ import MyDeliveries from "./pages/courier/MyDeliveries";
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminParcels from "./pages/admin/AdminParcels";
+import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminCouriers from "./pages/admin/AdminCouriers";
+import AdminSystemStats from "./pages/admin/AdminSystemStats";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +67,9 @@ const App = () => (
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/parcels" element={<AdminParcels />} />
+              <Route path="/admin/customers" element={<AdminCustomers />} />
+              <Route path="/admin/couriers" element={<AdminCouriers />} />
+              <Route path="/admin/stats" element={<AdminSystemStats />} />
               <Route path="/admin/profile" element={<Profile />} />
             </Route>
 
