@@ -16,11 +16,13 @@ import NotFound from "./pages/NotFound";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import CreateParcel from "./pages/customer/CreateParcel";
 import TrackParcel from "./pages/customer/TrackParcel";
-
+import MyParcels from "./pages/customer/MyParcels";
+import Profile from "./pages/customer/Profile";
 
 // Courier Pages
 import CourierDashboard from "./pages/courier/CourierDashboard";
 import AvailableParcels from "./pages/courier/AvailableParcels";
+import MyDeliveries from "./pages/courier/MyDeliveries";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
