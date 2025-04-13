@@ -26,7 +26,32 @@ const Register = () => {
   const { login } = useAuth();
   const { toast } = useToast();
 
-  // ... keep existing code (validate function)
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -37,34 +62,42 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
-    
+
     setIsLoading(true);
     try {
+      // Call the register API
       const response = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        confirmPassword: formData.confirmPassword,
         role: formData.role as 'customer' | 'courier' | 'admin',
       });
+
+      // Handle the API response
       const data = await handleApiResponse(response);
-      
-      // For demo purposes, simulate successful registration
-      login(data.token || 'demo-token', {
-        id: '4',
-        name: formData.name,
-        email: formData.email,
-        role: formData.role as 'customer' | 'courier' | 'admin',
+
+      // Log the response for debugging
+      console.log('API Response:', data);
+
+      // Log in the user after successful registration
+      login(data.token, {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
       });
-      
+
+      // Display success toast
       toast({
         title: 'Success',
-        description: 'Your account has been created',
+        description: 'Your account has been created successfully!',
       });
-      
-      // Redirect based on role
-      switch (formData.role) {
+
+      // Redirect the user based on their role
+      switch (data.user.role) {
         case 'admin':
           navigate('/admin/dashboard');
           break;
@@ -75,10 +108,12 @@ const Register = () => {
           navigate('/customer/dashboard');
       }
     } catch (error) {
-      console.error('Registration error', error);
+      console.error('Registration error:', error);
+
+      // Display error toast
       toast({
         title: 'Error',
-        description: 'Failed to create account',
+        description: error instanceof Error ? error.message : 'Failed to create account',
         variant: 'destructive',
       });
     } finally {

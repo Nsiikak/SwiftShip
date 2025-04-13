@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost/SwiftShip/Backend/auth";
+const API_BASE_URL = "http://localhost:8000/auth";
 
 // Authentication Endpoints
 export const login = (data: { email: string; password: string }) =>
@@ -12,6 +12,7 @@ export const register = (data: {
   name: string;
   email: string;
   password: string;
+  confirmPassword: string;
   role: "customer" | "courier" | "admin";
 }) =>
   fetch(`${API_BASE_URL}/register.php`, {
