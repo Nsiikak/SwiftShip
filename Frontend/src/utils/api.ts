@@ -1,8 +1,8 @@
-const API_BASE_URL = "http://localhost:8000/auth";
+const API_BASE_URL = "http://localhost:8000";
 
 // Authentication Endpoints
 export const login = (data: { email: string; password: string }) =>
-  fetch(`${API_BASE_URL}/login.php`, {
+  fetch(`${API_BASE_URL}/auth/login.php`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -15,7 +15,7 @@ export const register = (data: {
   confirmPassword: string;
   role: "customer" | "courier" | "admin";
 }) =>
-  fetch(`${API_BASE_URL}/register.php`, {
+  fetch(`${API_BASE_URL}/auth/register.php`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
