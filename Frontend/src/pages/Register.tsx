@@ -17,9 +17,9 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'customer',
+    role: 'customer', // Default role is "customer"
   });
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
@@ -67,22 +67,15 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      // Call the register API
       const response = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        role: formData.role as 'customer' | 'courier' | 'admin',
+        role: formData.role, // Send the selected role to the backend
       });
 
-      // Handle the API response
       const data = await handleApiResponse(response);
 
-      // Log the response for debugging
-      console.log('API Response:', data);
-
-      // Log in the user after successful registration
       login(data.token, {
         id: data.user.id,
         name: data.user.name,
@@ -90,13 +83,11 @@ const Register = () => {
         role: data.user.role,
       });
 
-      // Display success toast
       toast({
         title: 'Success',
         description: 'Your account has been created successfully!',
       });
 
-      // Redirect the user based on their role
       switch (data.user.role) {
         case 'admin':
           navigate('/admin/dashboard');
@@ -110,7 +101,6 @@ const Register = () => {
     } catch (error) {
       console.error('Registration error:', error);
 
-      // Display error toast
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to create account',
@@ -209,28 +199,17 @@ const Register = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Account Type</label>
-                <RadioGroup 
-                  defaultValue={formData.role} 
+                <RadioGroup
+                  value={formData.role}
+                  onValueChange={(value) => setFormData({ ...formData, role: value })}
                   className="flex space-x-4 mt-1"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem 
-                      id="customer" 
-                      value="customer" 
-                      name="role"
-                      checked={formData.role === "customer"}
-                      onChange={handleChange}
-                    />
+                    <RadioGroupItem id="customer" value="customer" />
                     <Label htmlFor="customer">Customer</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem 
-                      id="courier" 
-                      value="courier"
-                      name="role" 
-                      checked={formData.role === "courier"}
-                      onChange={handleChange}
-                    />
+                    <RadioGroupItem id="courier" value="courier" />
                     <Label htmlFor="courier">Courier</Label>
                   </div>
                 </RadioGroup>
@@ -243,7 +222,7 @@ const Register = () => {
           </CardContent>
           <CardFooter className="flex justify-center">
             <span className="text-sm text-gray-500">
-              Already have an account?{" "}
+              Already have an account?{' '}
               <Link to="/login" className="text-swiftship-600 hover:underline">
                 Sign in
               </Link>
