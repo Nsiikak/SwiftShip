@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Package, Truck } from 'lucide-react';
 import ParcelStatusBadge from '../../components/shared/ParcelStatusBadge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 
 interface Parcel {
   id: string;
@@ -141,26 +142,26 @@ const CustomerDashboard: React.FC = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="border-b">
-                  <tr className="text-left">
-                    <th className="pb-2 text-sm font-medium text-gray-500">Tracking ID</th>
-                    <th className="pb-2 text-sm font-medium text-gray-500">Created</th>
-                    <th className="pb-2 text-sm font-medium text-gray-500">Delivery Address</th>
-                    <th className="pb-2 text-sm font-medium text-gray-500">Status</th>
-                    <th className="pb-2 text-sm font-medium text-gray-500">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tracking ID</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Delivery Address</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {parcels.map((parcel) => (
-                    <tr key={parcel.id}>
-                      <td className="py-3 text-sm">{parcel.trackingId}</td>
-                      <td className="py-3 text-sm">{formatDate(parcel.createdAt)}</td>
-                      <td className="py-3 text-sm">{parcel.deliveryAddress}</td>
-                      <td className="py-3 text-sm">
+                    <TableRow key={parcel.id}>
+                      <TableCell>{parcel.trackingId}</TableCell>
+                      <TableCell>{formatDate(parcel.createdAt)}</TableCell>
+                      <TableCell>{parcel.deliveryAddress}</TableCell>
+                      <TableCell>
                         <ParcelStatusBadge status={parcel.status} />
-                      </td>
-                      <td className="py-3 text-sm">
+                      </TableCell>
+                      <TableCell>
                         <Button 
                           variant="outline" 
                           size="sm"
@@ -168,11 +169,11 @@ const CustomerDashboard: React.FC = () => {
                         >
                           Track
                         </Button>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
