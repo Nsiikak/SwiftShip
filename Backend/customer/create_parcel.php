@@ -12,38 +12,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once("../config/db.php");
 header("Content-Type: application/json");
 
+// Parse incoming JSON
 $data = json_decode(file_get_contents("php://input"), true);
 
 // Validate input data
-if (!isset($data['sender_id'], $data['recipientName'], $data['recipientPhone'], $data['pickupAddress'], $data['deliveryAddress'], $data['weight'], $data['dimensions'], $data['description'])) {
+$sender_id = $data['sender_id'] ?? null;
+$receiver_name = $data['recipientName'] ?? null;
+$receiver_phone = $data['recipientPhone'] ?? null;
+$pickup = $data['pickupAddress'] ?? null;
+$delivery = $data['deliveryAddress'] ?? null;
+$weight = $data['weight'] ?? null;
+$dimensions = $data['dimensions'] ?? null;
+$description = $data['description'] ?? null;
+
+if (
+    !$sender_id || !$receiver_name || !$receiver_phone || !$pickup ||
+    !$delivery || !$weight || !$dimensions || !$description
+) {
     echo json_encode(["success" => false, "message" => "All fields are required"]);
     exit;
 }
 
-$sender_id = intval($data['sender_id']);
-$receiver_name = $data['recipientName'];
-$receiver_phone = $data['recipientPhone'];
-$pickup = $data['pickupAddress'];
-$delivery = $data['deliveryAddress'];
-$weight = floatval($data['weight']);
-$dimensions = $data['dimensions'];
-$description = $data['description'];
+try {
+    // Connect to the database
+    $db = new Database();
+    $conn = $db->connect();
 
-// Prepare the SQL statement
-$stmt = $conn->prepare("INSERT INTO parcels (sender_id, receiver_name, receiver_phone, pickup_address, delivery_address, weight, dimensions, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-if (!$stmt) {
-    echo json_encode(["success" => false, "message" => "Failed to prepare statement: " . $conn->error]);
-    exit;
+    // Prepare the SQL statement
+    $stmt = $conn->prepare("INSERT INTO parcels 
+        (sender_id, receiver_name, receiver_phone, pickup_address, delivery_address, weight, dimensions, description) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+    if (!$stmt) {
+        throw new Exception("Failed to prepare parcel creation query: " . $conn->error);
+    }
+
+    // Bind parameters
+    $stmt->bind_param(
+        "issssdss",
+        $sender_id,
+        $receiver_name,
+        $receiver_phone,
+        $pickup,
+        $delivery,
+        $weight,
+        $dimensions,
+        $description
+    );
+
+    // Execute and respond
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true, "message" => "Parcel created successfully"]);
+    } else {
+        echo json_encode(["success" => false, "message" => "Failed to create parcel: " . $stmt->error]);
+    }
+
+    $stmt->close();
+    $conn->close();
+} catch (Exception $e) {
+    error_log("Parcel creation error: " . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "An internal error occurred."]);
 }
-
-// Bind parameters and execute the query
-$stmt->bind_param("issssdss", $sender_id, $receiver_name, $receiver_phone, $pickup, $delivery, $weight, $dimensions, $description);
-
-if ($stmt->execute()) {
-    echo json_encode(["success" => true, "message" => "Parcel created successfully"]);
-} else {
-    echo json_encode(["success" => false, "message" => "Failed to create parcel: " . $stmt->error]);
-}
-
-$stmt->close();
-$conn->close();

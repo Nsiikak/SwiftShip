@@ -20,6 +20,9 @@ if (!isset($_GET['sender_id'])) {
 
 $sender_id = intval($_GET['sender_id']); // Ensure sender_id is an integer
 
+// Log the sender_id for debugging
+error_log("Fetching parcels for sender_id: $sender_id");
+
 // Prepare and execute the query
 $query = $conn->prepare("SELECT * FROM parcels WHERE sender_id = ?");
 if (!$query) {
@@ -37,6 +40,13 @@ while ($row = $result->fetch_assoc()) {
     $parcels[] = $row;
 }
 
+// Check if parcels were found
+if (empty($parcels)) {
+    echo json_encode(["success" => false, "message" => "No parcels found for the given sender ID"]);
+    exit;
+}
+
+// Return the parcels as JSON
 echo json_encode(["success" => true, "data" => $parcels]);
 
 $query->close();
